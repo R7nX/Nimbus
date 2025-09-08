@@ -9,13 +9,13 @@ export default function App() {
     <div className="h-screen flex flex-col">
       <header className="p-3 border-b">VS Lite — Editor</header>
               {/* Login Button */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* <div className="absolute top-4 right-4 z-20">
         <Link href="/login">
 
             Log In
 
         </Link>
-        </div>
+        </div> */}
       <div className="flex-1">
         <Editor
           height="100%"
