@@ -19,7 +19,7 @@ export default function App() {
       <div className="flex-1">
         <Editor
           height="100%"
-          defaultLanguage="javascript"
+          defaultLanguage="python"
           theme="vs-dark"
           value={code}
           onChange={(v) => setCode(v ?? "")}
