@@ -20,7 +20,6 @@ export default function App() {
   );
 }
 
-
 // Check if the browser support Save/Load files
 const supportsFileSystemAccess = useMemo(() => {
   return typeof window != "undefined" && "showOpenFilePicker" in window;
@@ -44,7 +43,6 @@ const extFromLang = (lang: string) => {
       return ".py";
   }
 }
-
 
 const pickerTypes = useMemo(() => {
   return [
@@ -71,13 +69,11 @@ async function saveFile(){
 
 }
 
-
 async function openFile(){
 
 }
 
 async function saveFileAs(){
-
 
 }
 
