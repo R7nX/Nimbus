@@ -13,7 +13,7 @@ export default function App() {
         <Link href="/login">
 
             Log In
-
+            
         </Link>
         </div>
       <div className="flex-1">
