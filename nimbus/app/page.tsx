@@ -19,7 +19,6 @@ const {
     fileInputProps,   // spread onto a hidden <input> for non-Chromium fallback
   } = useFileManager();
 
-  // UI-only theme (you can add a theme toggle if you like)
   const [theme] = useState<string>("vs-dark");
 
   return (
@@ -53,7 +52,7 @@ const {
         </div>
 
         {/* Hidden input for Safari/Firefox open fallback */}
-        <input {...fileInputProps} />
+        <input {...fileInputProps} suppressHydrationWarning/>
       </header>
 
       <div className="flex-1">
