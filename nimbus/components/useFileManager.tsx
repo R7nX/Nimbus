@@ -42,7 +42,7 @@ export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
     initialName = "untitled.py",
   } = opts;
 
-  const [code, setCode] = useState<string>(initialCode);
+  const [code, _setCode] = useState<string>(initialCode);
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [fileName, setFileName] = useState<string>(initialName);
   const [language, setLanguage] = useState<UseFileManager>(initialLanguage);
@@ -51,12 +51,12 @@ export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
   /** Hidden input for non-Chromium fallback open */
   const hiddenFileInputRef = useRef<HTMLInputElement | null>(null);
   /** Feature-detect the File System Access API (Chromium browsers) */
-  const supportsFSA = useMemo {
+  const supportsFSA = useMemo( 
     () => typeof window != "undefined" && "showOpenFilePicker" in window, []
-  };
+                             );
 
   /** File picker filter: show common text/code extensions */
-  const pickerTypes = useMemo {
+  const pickerTypes = useMemo( 
     () => [
       {
         description: "Code files", 
@@ -75,7 +75,7 @@ export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
       },
     ],
     []
-  };
+                             );
 
   /** Choose a default extension based on editor language (for Save As suggestedName) */
   const extFromLang = useCallback((lang: string) => {
