@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import Header from "@/components/header";
 import { useFileManager } from "@/components/useFileManager"
@@ -18,7 +18,7 @@ export default function App() {
 
 
   return (
-    div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col">
 <header className="p-3 border-b flex items-center gap-2">
 <span className="font-semibold">VS Lite — Editor</span>
 <span className="text-sm text-gray-500">{fileName}{isDirty ? " •" : ""}</span>
