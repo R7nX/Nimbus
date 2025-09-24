@@ -1,8 +1,8 @@
 "use client"
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import Header from "@/components/header";
-import { useFileManager } from "@/components/useFileManager"
+import { useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
 
 
