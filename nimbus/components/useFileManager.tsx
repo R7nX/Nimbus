@@ -11,6 +11,7 @@ export type FileManagerOptions = {
   initialName?: string;
 };
 
+// File metadata
 export type UseFileManager = {
   code: string; 
   setCode: (s: string) => void;
@@ -27,7 +28,7 @@ export type UseFileManager = {
 
   //DOM helpers for exception
   fileInputProps: {
-    ref: React.RefObject<HTMLInputElement>;
+    ref: React.RefObject<HTMLInputElement>; 
     type: "file";
     accept: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -36,6 +37,7 @@ export type UseFileManager = {
 };
 
 export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
+  // default window
   const {
     initialCode = "def hello():\n return 'Hello, World!'\n",
     initialLanguage = "python",
@@ -140,8 +142,10 @@ export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
     []
   );
 
+  // TODO: Create File
+  // const createFile; 
 
-
+  // TODO: Delete file
 
   /** OPEN: pick a file, read as text, load into buffer */
   const openFile = useCallback(async () => {
@@ -250,6 +254,8 @@ export function useFileManager(opts: FileManagerOptions = {}): UseFileManager {
     }),
     [onHiddenFilePicked]
   );
+
+  
   
   return {
     code,
