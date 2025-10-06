@@ -26,6 +26,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         () => typeof window != "undefined" && "showOpenFilePicker" in window,
     []);
 
+    // save code
     const setCode = useCallback((s:string) => {
         _setCode(s);
         setIsDirty(true);
