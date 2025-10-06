@@ -53,7 +53,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                         multiple: false,
                     });
                     const file = await handle.getFile();
-                    const text = await handle.text();
+                    const text = await file.text();
 
                     fileHandleRef.current = handle; // Remember where we open the file from
                     setFileName(file.name);
