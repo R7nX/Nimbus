@@ -12,4 +12,5 @@ Project Management – Organize and manage files in a workspace.
 
 Scalable Architecture – Built with cloud-native design for high performance.
 
-🏗️ Tech Stack
+🏗️ Data Pipeline
+<img width="4158" height="2222" alt="Nimbus" src="https://github.com/user-attachments/assets/688ba0e4-edb2-4cbd-a579-95dd9f276a66" />
