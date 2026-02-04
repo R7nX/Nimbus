@@ -12,7 +12,7 @@
     "@monaco-editor/react": "^4.7.0",
     "framer-motion": "^12.23.12",
     "monaco-editor": "^0.52.2",
-    "next": "^15.5.2",
+    "next": "^16.1.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
