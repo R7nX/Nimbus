@@ -1,8 +1,7 @@
 "use client"
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
-import Header from "@/components/header";
-import { useFileManager } from "@/components/hooks/useFileManager"
+import { LANGUAGE_META, useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
 
 
@@ -24,11 +23,20 @@ const {
   return (
     <div className="h-screen flex flex-col">
       <header className="p-3 border-b flex items-center gap-2">
-        <span className="font-semibold">VS Lite — Editor</span>
-        <span className="text-sm text-gray-500">
-          {fileName}
-          {isDirty ? " •" : ""}
-        </span>
+        <span className="font-semibold">Nimbus — Editor</span>
+        <div className="text-sm text-gray-500 flex items-center gap-2">
+          {LANGUAGE_META[language]?.icon ? (
+            <img
+              src={LANGUAGE_META[language].icon}
+              alt={`${LANGUAGE_META[language].label} file icon`}
+              className="w-4 h-4"
+            />
+          ) : null}
+          <span>
+            {fileName}
+            {isDirty ? " •" : ""}
+          </span>
+        </div>
 
         <div className="ml-auto flex items-center gap-2">
           {/* No 'New' button because hook is load/save-only per your request */}
