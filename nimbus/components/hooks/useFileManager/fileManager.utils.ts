@@ -1,15 +1,14 @@
 import { useCallback } from "react";
-import type { Language } from "./fileManager.type";
+import type { Language } from "./fileManager.language";
 
 
-export function inferLanguageFromName(name: string) {
-    if (name.endsWith(".js")) return "javascript";
-    if (name.endsWith(".ts")) return "typescript";
-    if (name.endsWith(".json")) return "json";
-    if (name.endsWith(".html")) return "html";
-    if (name.endsWith(".css")) return "css";
-    return "python";
-};
+// Check the language based on the extension
+export function inferLanguageFromName(name: string): Language {
+  const lower = name.toLowerCase();
+
+  if (lower.endsWith(".py")) return "python";
+  else return "unknown";
+}
 
 
 export function downloadBlob(text: string, name: string){
