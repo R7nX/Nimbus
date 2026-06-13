@@ -1,1 +1,15 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project-specific ignores
 Test/
+AGENT.md
+opencode.json
+LINEAR_SETUP.md
