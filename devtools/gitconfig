@@ -51,9 +51,9 @@
 	sw  = switch
 	ch  = checkout
 
-	# Create a new NIM-prefixed branch
-	# Usage: git nwb 42-fix-auth-flow  →  nim-42-fix-auth-flow
-	nwb = "![[ $# = 1 ]] && git switch -c nim-$1 #"
+	# Create a new branch using the exact name from Linear
+	# Usage: git nwb nim-42-fix-auth-flow
+	nwb = "![[ $# = 1 ]] && git switch -c $1 #"
 
 	# Switch to a branch by partial name match (local + remote)
 	# Usage: git chg 42  →  finds and switches to nim-42-fix-auth-flow
