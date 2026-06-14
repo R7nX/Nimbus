@@ -29,7 +29,11 @@ That's it. The script is safe to run multiple times — it checks for existing e
 | `git unstage` | `git restore --staged` | |
 | `git sw` | `git switch` | with tab completion |
 | `git ch` | `git checkout` | with tab completion |
+<<<<<<< HEAD
 | `git nwb <name>` | create branch with exact name | copy branch name from Linear, e.g. `git nwb nim-42-fix-auth` |
+=======
+| `git nwb <desc>` | create NIM-prefixed branch | e.g. `git nwb 42-fix-auth` → `nim-42-fix-auth` |
+>>>>>>> main
 | `git chg <partial>` | switch by partial branch name | e.g. `git chg 42` finds `nim-42-fix-auth` |
 | `git ps` | `git push` | |
 | `git psf` | `git push --force-with-lease` | |
