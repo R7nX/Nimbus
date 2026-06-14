@@ -1,0 +1,108 @@
+# Nimbus project git aliases
+# ─────────────────────────────────────────────────────────────────────────────
+# DO NOT add [user] section here. Each person keeps their own name/email in
+# their personal ~/.gitconfig.
+#
+# HOW TO USE:
+#   Add this to your personal ~/.gitconfig:
+#
+#   [include]
+#       path = /path/to/Nimbus/devtools/gitconfig
+#
+#   Or run:  bash /path/to/Nimbus/devtools/setup.sh
+# ─────────────────────────────────────────────────────────────────────────────
+
+[rebase]
+	instructionFormat = "(%cr) (%an) %s"
+	autostash = true
+
+[stash]
+	autostash = true
+
+[push]
+	autoSetupRemote = true
+
+[pull]
+	rebase = true
+
+[rerere]
+	enabled = true
+
+[core]
+	untrackedCache = true
+
+[alias]
+	# ─── Status & Info ───────────────────────────────────────────
+	s     = status
+	b     = branch
+	l     = log
+	lo    = log --oneline
+	last  = log -1 HEAD --stat
+	graph = log --oneline --graph --decorate --all
+
+	# ─── Staging & Committing ────────────────────────────────────
+	cm      = commit
+	ane     = commit --amend --no-edit
+	amend   = commit --amend
+	addp    = add -p
+	unstage = restore --staged
+
+	# ─── Switching & Branching ───────────────────────────────────
+	sw  = switch
+	ch  = checkout
+
+	# Create a new NIM-prefixed branch
+	# Usage: git nwb 42-fix-auth-flow  →  nim-42-fix-auth-flow
+	nwb = "![[ $# = 1 ]] && git switch -c nim-$1 #"
+
+	# Switch to a branch by partial name match (local + remote)
+	# Usage: git chg 42  →  finds and switches to nim-42-fix-auth-flow
+	chg = "!f() { branch=$(git branch -a | grep -v HEAD | sed 's|remotes/origin/||' | sort -u | grep \"$1\" | head -1 | tr -d '* '); [ -n \"$branch\" ] && git switch \"$branch\" || echo \"No branch matching '$1'\"; }; f"
+
+	# ─── Push & Pull ─────────────────────────────────────────────
+	ps  = push
+	psf = push --force-with-lease
+	pl  = pull
+	f   = fetch
+
+	# ─── Stash ───────────────────────────────────────────────────
+	st  = stash
+	stp = stash pop
+
+	# ─── Rebase ──────────────────────────────────────────────────
+	r        = rebase
+	continue = rebase --continue
+
+	# ─── Fixup with fzf (pick commit to fixup interactively) ─────
+	fixup-i = "!f() { \
+	line=$(git log -n 30 \
+		--pretty=format:'%h %C(yellow)%h%Creset %s' --color=always \
+		| fzf --ansi \
+			--with-nth=2.. \
+			--bind=ctrl-j:down,ctrl-k:up \
+			--preview 'git show --color=always --stat --format=fuller {1}' \
+			--preview-window=right:55%:wrap); \
+	hash=${line%% *}; \
+	[ -n \"$hash\" ] && git commit --fixup=$hash; \
+	}; f"
+
+	# ─── Interactive squash with fzf ─────────────────────────────
+	squash-i = "!f() { \
+	line=$(git log -n 30 \
+		--pretty=format:'%h %C(yellow)%h%Creset %s' --color=always \
+		| fzf --ansi \
+			--with-nth=2.. \
+			--bind=ctrl-j:down,ctrl-k:up \
+			--preview 'git show --color=always --stat --format=fuller {1}' \
+			--preview-window=right:55%:wrap); \
+	hash=${line%% *}; \
+	[ -n \"$hash\" ] && git rebase -i --autosquash $hash^; \
+	}; f"
+
+	# ─── NIM project helpers ──────────────────────────────────────
+	# Show commits referencing NIM issues in the last 2 weeks
+	nimlog = "!git log --oneline --all --grep='NIM-' --since='2 weeks ago'"
+
+	# ─── Cleanup ─────────────────────────────────────────────────
+	# Delete all local branches fully merged into main
+	cleanup = "!git branch --merged main | grep -v '\\*\\|main' | xargs -r git branch -d #"
