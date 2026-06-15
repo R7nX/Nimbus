@@ -1,4 +1,4 @@
-import type { Language } from ".//fileManager.type";
+import type { Language } from "./fileManager.type";
 
 export const PLAIN_TEXT_EXTS = [
   ".py",
