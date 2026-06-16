@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
-import Header from "@/components/header";
 import { useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
 
@@ -21,9 +20,12 @@ const {
 
   const [theme] = useState<string>("vs-dark");
 
+  // Basic layout: sidebar for file explorer + main editor area with header
+  // No 'New' button because hook is load/save-only per your request
   return (
     <div className="h-screen flex overflow-hidden">
-      {/* Static sidebar for file explorer (just a template for now, no actual file tree) */}
+      {/* Static sidebar for file explorer */}
+      {/* TODO: implementing file tree */}
       <aside className="w-[15vw] shrink-0 bg-neutral-900 text-neutral-100">
         <header className="h-12 px-4 flex items-center border-b border-neutral-800">
           Explorer
@@ -40,7 +42,6 @@ const {
           </span>
 
           <div className="ml-auto flex items-center gap-2">
-            {/* No 'New' button because hook is load/save-only per your request */}
             <button className="px-3 py-1 border rounded" onClick={openFile}>
               Open
             </button>
