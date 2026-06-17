@@ -1,0 +1,2 @@
+cd nimbus
+npx lint-staged
