@@ -129,39 +129,50 @@ const {
     setActiveFilePath(path);
   };
 
+  // Basic layout: sidebar for file explorer + main editor area with header
+  // No 'New' button because hook is load/save-only per your request
   return (
-    <div className="h-screen flex flex-col">
-      <header className="p-3 border-b flex items-center gap-2">
-        <span className="font-semibold">VS Lite — Editor</span>
-        <span className="text-sm text-gray-500">
-          {fileName}
-          {isDirty ? " •" : ""}
-        </span>
+    <div className="h-screen flex overflow-hidden">
+      {/* Static sidebar for file explorer */}
+      {/* TODO: implementing file tree */}
+      <aside className="w-[15vw] shrink-0 bg-neutral-900 text-neutral-100">
+        <header className="h-12 px-4 flex items-center border-b border-neutral-800">
+          Explorer
+        </header>
+      </aside>
 
-        <div className="ml-auto flex items-center gap-2">
-          {/* No 'New' button because hook is load/save-only per your request */}
-          <button className="px-3 py-1 border rounded" onClick={openFile}>
-            Open
-          </button>
-          <button
-            className="px-3 py-1 border rounded"
-            onClick={saveFile}
-            disabled={!isDirty} // Save enabled only when there are changes
-            title={isDirty ? "Save (changes present)" : "Nothing to save"}
-          >
-            Save
-          </button>
-          <button className="px-3 py-1 border rounded" onClick={saveFileAs}>
-            Save As
-          </button>
-          <Link href="/login" className="underline ml-2">
-            Log In
-          </Link>
-        </div>
+      {/* Main editor area */}
+      <main className="flex-1 min-w-0 flex flex-col">
+        <header className="p-3 border-b flex items-center gap-2">
+          <span className="font-semibold">VS Lite — Editor</span>
+          <span className="text-sm text-gray-500">
+            {fileName}
+            {isDirty ? " •" : ""}
+          </span>
 
-        {/* Hidden input for Safari/Firefox open fallback */}
-        <input {...fileInputProps} suppressHydrationWarning/>
-      </header>
+          <div className="ml-auto flex items-center gap-2">
+            <button className="px-3 py-1 border rounded" onClick={openFile}>
+              Open
+            </button>
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={saveFile}
+              disabled={!isDirty} // Save enabled only when there are changes
+              title={isDirty ? "Save (changes present)" : "Nothing to save"}
+            >
+              Save
+            </button>
+            <button className="px-3 py-1 border rounded" onClick={saveFileAs}>
+              Save As
+            </button>
+            <Link href="/login" className="underline ml-2">
+              Log In
+            </Link>
+          </div>
+
+          {/* Hidden input for Safari/Firefox open fallback */}
+          <input {...fileInputProps} suppressHydrationWarning/>
+        </header>
 
       <div className="flex min-h-0 flex-1">
         <aside className="w-64 shrink-0 overflow-y-auto border-r border-neutral-800 bg-neutral-950 p-3 text-neutral-200">
@@ -176,6 +187,7 @@ const {
         </aside>
 
         <div className="min-w-0 flex-1">
+        <div className="flex-1 min-h-0">
           <Editor
             height="100%"
             language={language} // tracks extension (e.g., .py -> python)
@@ -186,6 +198,7 @@ const {
           />
         </div>
       </div>
+      </main>
     </div>
   );
 }
