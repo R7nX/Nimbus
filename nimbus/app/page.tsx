@@ -1,8 +1,107 @@
 "use client"
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
+import { FileTree, type TreeNode } from "@/components/FileTree";
 import { useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
+
+const sampleFileTree: TreeNode[] = [
+  {
+    name: "app",
+    type: "folder",
+    children: [
+      {
+        name: "page.tsx",
+        type: "file",
+        content: `export default function HomePage() {
+  return <main>Welcome to Nimbus.</main>;
+}
+`,
+      },
+      {
+        name: "layout.tsx",
+        type: "file",
+        content: `export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <html lang="en"><body>{children}</body></html>;
+}
+`,
+      },
+      {
+        name: "login",
+        type: "folder",
+        children: [
+          {
+            name: "page.tsx",
+            type: "file",
+            content: `export default function LoginPage() {
+  return <form>Log in to Nimbus</form>;
+}
+`,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "components",
+    type: "folder",
+    children: [
+      {
+        name: "FileTree.tsx",
+        type: "file",
+        content: `export function FileTree() {
+  return <nav aria-label="Project files" />;
+}
+`,
+      },
+      {
+        name: "FileToolbar.tsx",
+        type: "file",
+        content: `export function FileToolbar() {
+  return <div>File actions</div>;
+}
+`,
+      },
+      {
+        name: "hooks",
+        type: "folder",
+        children: [
+          {
+            name: "useFileManager.ts",
+            type: "file",
+            content: `export function useFileManager() {
+  return { fileName: "temp.py" };
+}
+`,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "package.json",
+    type: "file",
+    content: `{
+  "name": "nimbus",
+  "private": true
+}
+`,
+  },
+  {
+    name: "tailwind.config.ts",
+    type: "file",
+    content: `import type { Config } from "tailwindcss";
+
+export default {
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+} satisfies Config;
+`,
+  },
+];
 
 
 export default function App() {
@@ -13,12 +112,22 @@ const {
     fileName,
     language,         // inferred from file extension on open/save-as
     openFile,
+    openVirtualFile,
     saveFile,
     saveFileAs,
     fileInputProps,   // spread onto a hidden <input> for non-Chromium fallback
   } = useFileManager();
 
   const [theme] = useState<string>("vs-dark");
+  const [activeFilePath, setActiveFilePath] = useState<string>();
+
+  const handleSelectFile = (node: TreeNode, path: string) => {
+    openVirtualFile({
+      name: node.name,
+      contents: node.content ?? "",
+    });
+    setActiveFilePath(path);
+  };
 
   // Basic layout: sidebar for file explorer + main editor area with header
   // No 'New' button because hook is load/save-only per your request
@@ -65,6 +174,19 @@ const {
           <input {...fileInputProps} suppressHydrationWarning/>
         </header>
 
+      <div className="flex min-h-0 flex-1">
+        <aside className="w-64 shrink-0 overflow-y-auto border-r border-neutral-800 bg-neutral-950 p-3 text-neutral-200">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Explorer
+          </h2>
+          <FileTree
+            nodes={sampleFileTree}
+            activePath={activeFilePath}
+            onSelectFile={handleSelectFile}
+          />
+        </aside>
+
+        <div className="min-w-0 flex-1">
         <div className="flex-1 min-h-0">
           <Editor
             height="100%"
@@ -75,6 +197,7 @@ const {
             options={{ fontSize: 14, minimap: { enabled: false } }}
           />
         </div>
+      </div>
       </main>
     </div>
   );

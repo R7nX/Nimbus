@@ -1,8 +1,7 @@
-import { useCallback } from "react";
 import type { Language } from "./fileManager.type";
 
 
-export function inferLanguageFromName(name: string) {
+export function inferLanguageFromName(name: string): Language {
     if (name.endsWith(".js")) return "javascript";
     if (name.endsWith(".ts")) return "typescript";
     if (name.endsWith(".json")) return "json";

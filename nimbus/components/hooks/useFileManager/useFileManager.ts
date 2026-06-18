@@ -1,7 +1,20 @@
 import React, { useCallback, useState, useRef, useMemo, useEffect } from "react";
-import type { Language, FileManagerAPI, FileManagerOptions } from "./fileManager.type";
+import type { Language, FileManagerAPI, FileManagerOptions, VirtualFile } from "./fileManager.type";
 import { PICKER_TYPES, PLAIN_TEXT_EXTS, defaultExt } from "./fileManager.const";
 import { inferLanguageFromName, downloadBlob } from "./fileManager.utils";
+
+type FilePickerWindow = Window &
+    typeof globalThis & {
+        showOpenFilePicker: (options: {
+            types: typeof PICKER_TYPES;
+            excludeAcceptAllOptions: boolean;
+            multiple: false;
+        }) => Promise<FileSystemFileHandle[]>;
+        showSaveFilePicker: (options: {
+            suggestedName: string;
+            types: typeof PICKER_TYPES;
+        }) => Promise<FileSystemFileHandle>;
+    };
 
 
 export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
@@ -39,6 +52,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
 
             if (perm === "denied") throw new Error("Permission to write was denied");
             const writable = await handle.createWritable();
+            await writable.write(contents);
             await writable.close();
         }, []
     );
@@ -47,7 +61,8 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         async () => {
             try{
                 if (supportFSA) {
-                    const [handle] = await (window as any).showOpenFilePicker({
+                    const pickerWindow = window as FilePickerWindow;
+                    const [handle] = await pickerWindow.showOpenFilePicker({
                         types: PICKER_TYPES,
                         excludeAcceptAllOptions: false,
                         multiple: false,
@@ -59,7 +74,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                     setFileName(file.name);
                     _setCode(text);
                     setIsDirty(false);
-                    inferLanguageFromName(file.name);
+                    setLanguage(inferLanguageFromName(file.name));
                     return;
                 }
 
@@ -68,7 +83,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
             } catch (e) {
                 console.error("openFile error", e);
             }
-        }, [supportFSA, PICKER_TYPES, inferLanguageFromName]
+        }, [supportFSA]
     );
 
 
@@ -83,7 +98,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                 _setCode(String(reader.result ?? ""));
                 setFileName(f.name);
                 setIsDirty(false);
-                inferLanguageFromName(f.name);
+                setLanguage(inferLanguageFromName(f.name));
             };
             reader.readAsText(f);
 
@@ -92,10 +107,19 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         }, []
     );
 
+    const openVirtualFile = useCallback((file: VirtualFile) => {
+        fileHandleRef.current = null;
+        setFileName(file.name);
+        setLanguage(inferLanguageFromName(file.name));
+        _setCode(file.contents);
+        setIsDirty(false);
+    }, []);
+
     const saveFileAs = useCallback(async () => {
     try {
       if (supportFSA) {
-        const handle = await (window as any).showSaveFilePicker({
+        const pickerWindow = window as FilePickerWindow;
+        const handle = await pickerWindow.showSaveFilePicker({
           suggestedName: fileName || `untitled${defaultExt(language)}`,
           types: PICKER_TYPES,
         });
@@ -160,6 +184,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         fileName,
         language,
         openFile,
+        openVirtualFile,
         saveFile,
         saveFileAs,
         fileInputProps,
