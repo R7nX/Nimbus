@@ -105,7 +105,7 @@ export default {
 
 
 export default function App() {
-const {
+  const {
     code,
     setCode,          // call this in Editor onChange; it marks buffer dirty
     isDirty,
@@ -139,6 +139,11 @@ const {
         <header className="h-12 px-4 flex items-center border-b border-neutral-800">
           Explorer
         </header>
+        <FileTree
+              nodes={sampleFileTree}
+              activePath={activeFilePath}
+              onSelectFile={handleSelectFile}
+            />
       </aside>
 
       {/* Main editor area */}
@@ -173,20 +178,7 @@ const {
           {/* Hidden input for Safari/Firefox open fallback */}
           <input {...fileInputProps} suppressHydrationWarning/>
         </header>
-
-      <div className="flex min-h-0 flex-1">
-        <aside className="w-64 shrink-0 overflow-y-auto border-r border-neutral-800 bg-neutral-950 p-3 text-neutral-200">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            Explorer
-          </h2>
-          <FileTree
-            nodes={sampleFileTree}
-            activePath={activeFilePath}
-            onSelectFile={handleSelectFile}
-          />
-        </aside>
-
-        <div className="min-w-0 flex-1">
+  
         <div className="flex-1 min-h-0">
           <Editor
             height="100%"
@@ -197,7 +189,6 @@ const {
             options={{ fontSize: 14, minimap: { enabled: false } }}
           />
         </div>
-      </div>
       </main>
     </div>
   );
