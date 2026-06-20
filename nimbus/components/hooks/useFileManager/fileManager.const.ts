@@ -1,6 +1,3 @@
-// hooks/useFileManagers/fileManager.const.ts
-// File picker configuration + helpers.
-
 import { Language, LANGUAGE_META } from "./fileManager.language";
 
 // File extension

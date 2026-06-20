@@ -19,6 +19,10 @@ export type FileManagerOptions = {
     initialName?: string;
 }
 
+export type VirtualFile = {
+    name: string;
+    contents: string;
+};
 
 export type FileManagerAPI = {
     //state 
@@ -32,6 +36,7 @@ export type FileManagerAPI = {
 
     //actions
     openFile: () => Promise<void>;
+    openVirtualFile: (file: VirtualFile) => void;
     saveFile: () => Promise<void>;
     saveFileAs: () => Promise<void>;
 
@@ -44,4 +49,3 @@ export type FileManagerAPI = {
         className: string;
     };
 }
-

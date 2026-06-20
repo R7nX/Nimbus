@@ -1,8 +1,21 @@
 import React, { useCallback, useState, useRef, useMemo, useEffect } from "react";
-import type { FileManagerAPI, FileManagerOptions } from "./fileManager.type";
+import type { FileManagerAPI, FileManagerOptions, VirtualFile } from "./fileManager.type";
 import { FILE_EXTENSIONS, PICKER_TYPES, defaultExt } from "./fileManager.const";
 import { inferLanguageFromName, downloadBlob } from "./fileManager.utils";
-import { Language } from  "./fileManager.language";
+import { Language } from "./fileManager.language";
+
+type FilePickerWindow = Window &
+    typeof globalThis & {
+        showOpenFilePicker: (options: {
+            types: typeof PICKER_TYPES;
+            excludeAcceptAllOptions: boolean;
+            multiple: false;
+        }) => Promise<FileSystemFileHandle[]>;
+        showSaveFilePicker: (options: {
+            suggestedName: string;
+            types: typeof PICKER_TYPES;
+        }) => Promise<FileSystemFileHandle>;
+    };
 
 export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     // Default when creating new file
@@ -18,7 +31,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     const [language, setLanguage] = useState<Language>(initialLanguage); // inferred from file extension, used for syntax highlighting and default save as name
 
     /** Handle to the file picked via FS Access API; null = fallback or unsaved buffer */
-    const fileHandleRef = useRef<FileSystemFileHandle | null>(null); 
+    const fileHandleRef = useRef<FileSystemFileHandle | null>(null);
     /** Hidden input for non-Chromium fallback open */
     const hiddenFileInputRef = useRef<HTMLInputElement>(null!);
 
@@ -27,39 +40,39 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     []);
 
     // save code
-    const setCode = useCallback((newCode:string) => {
+    const setCode = useCallback((newCode: string) => {
         setCodeState(newCode);
         setIsDirty(true);
     }, []);
 
 
     type FileHandleWithPermission = FileSystemFileHandle & {
-    requestPermission?: (options?: { mode?: "read" | "readwrite" }) =>
-        Promise<"granted" | "denied" | "prompt">;
+        requestPermission?: (options?: { mode?: "read" | "readwrite" }) =>
+            Promise<"granted" | "denied" | "prompt">;
     };
 
     // write to file via FS Access API, with permission handling
     const writeToFileHandle = useCallback(
-    async (handle: FileSystemFileHandle, contents: string) => {
-        const permission = await (handle as FileHandleWithPermission)
-        .requestPermission?.({ mode: "readwrite" });
+        async (handle: FileSystemFileHandle, contents: string) => {
+            const permission = await (handle as FileHandleWithPermission)
+                .requestPermission?.({ mode: "readwrite" });
 
-        if (permission === "denied") {
-        throw new Error("Permission to write was denied");
-        }
+            if (permission === "denied") {
+                throw new Error("Permission to write was denied");
+            }
 
-        const writable = await handle.createWritable();
-        await writable.write(contents);
-        await writable.close();
-    },
-    []
+            const writable = await handle.createWritable();
+            await writable.write(contents);
+            await writable.close();
+        }, []
     );
 
     const openFile = useCallback(
         async () => {
-            try{
+            try {
                 if (supportsFileSystemAccess) {
-                    const [handle] = await (window as any).showOpenFilePicker({
+                    const pickerWindow = window as FilePickerWindow;
+                    const [handle] = await pickerWindow.showOpenFilePicker({
                         types: PICKER_TYPES,
                         excludeAcceptAllOptions: false,
                         multiple: false,
@@ -80,10 +93,8 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
             } catch (e) {
                 console.error("openFile error", e);
             }
-        }, [supportsFileSystemAccess, PICKER_TYPES, inferLanguageFromName]
+        }, [supportsFileSystemAccess]
     );
-
-
 
     const onHiddenFilePicked = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,74 +115,84 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         }, []
     );
 
+    const openVirtualFile = useCallback((file: VirtualFile) => {
+        fileHandleRef.current = null;
+        setFileName(file.name);
+        setLanguage(inferLanguageFromName(file.name));
+        setCodeState(file.contents);
+        setIsDirty(false);
+    }, []);
+
     const saveFileAs = useCallback(async () => {
-    try {
-      if (supportsFileSystemAccess) {
-        const handle = await (window as any).showSaveFilePicker({
-          suggestedName: fileName || `untitled${defaultExt(language)}`,
-          types: PICKER_TYPES,
-        });
-        await writeToFileHandle(handle, code);
-        fileHandleRef.current = handle;
-        const f = await handle.getFile();
-        setFileName(f.name);
-        setIsDirty(false);
-      } else {
-        downloadBlob(code, fileName || `untitled${defaultExt(language)}`);
-        setIsDirty(false);
-      }
-    } catch (e) {
-      console.error("saveFileAs error", e);
-    }
+        try {
+            if (supportsFileSystemAccess) {
+                const pickerWindow = window as FilePickerWindow;
+                const handle = await pickerWindow.showSaveFilePicker({
+                    suggestedName: fileName || `untitled${defaultExt(language)}`,
+                    types: PICKER_TYPES,
+                });
+                await writeToFileHandle(handle, code);
+                fileHandleRef.current = handle;
+                const f = await handle.getFile();
+                setFileName(f.name);
+                setIsDirty(false);
+            } else {
+                downloadBlob(code, fileName || `untitled${defaultExt(language)}`);
+                setIsDirty(false);
+            }
+        } catch (e) {
+            console.error("saveFileAs error", e);
+        }
     }, [supportsFileSystemAccess, code, fileName, language, writeToFileHandle]);
 
     const saveFile = useCallback(async () => {
-    try {
-      if (supportsFileSystemAccess) {
-        if (fileHandleRef.current) {
-          await writeToFileHandle(fileHandleRef.current, code);
-          setIsDirty(false);
-        } else {
-          await saveFileAs();
-        }
-      } else {
-        downloadBlob(code, fileName || `untitled${defaultExt(language)}`);
-        setIsDirty(false);
-        }
+        try {
+            if (supportsFileSystemAccess) {
+                if (fileHandleRef.current) {
+                    await writeToFileHandle(fileHandleRef.current, code);
+                    setIsDirty(false);
+                } else {
+                    await saveFileAs();
+                }
+            } else {
+                downloadBlob(code, fileName || `untitled${defaultExt(language)}`);
+                setIsDirty(false);
+            }
         } catch (e) {
-        console.error("saveFile error", e);
+            console.error("saveFile error", e);
         }
     }, [supportsFileSystemAccess, code, fileName, language, saveFileAs, writeToFileHandle]);
 
     // Warn on navigation if there are unsaved changes
     useEffect(() => {
         const handler = (e: BeforeUnloadEvent) => {
-        if (!isDirty) return;
-        e.preventDefault();
-        e.returnValue = "";
+            if (!isDirty) return;
+            e.preventDefault();
+            e.returnValue = "";
         };
         window.addEventListener("beforeunload", handler);
         return () => window.removeEventListener("beforeunload", handler);
     }, [isDirty]);
 
     const fileInputProps = useMemo(
-    () => ({
-      ref: hiddenFileInputRef,
-      type: "file" as const,
-      accept: FILE_EXTENSIONS.join(","),
-      onChange: onHiddenFilePicked,
-      className: "hidden",
-    }),
+        () => ({
+            ref: hiddenFileInputRef,
+            type: "file" as const,
+            accept: FILE_EXTENSIONS.join(","),
+            onChange: onHiddenFilePicked,
+            className: "hidden",
+        }),
         [onHiddenFilePicked]
     );
 
     return {
-        code, 
+        code,
         setCode,
         isDirty,
         fileName,
         language,
         openFile,
+        openVirtualFile,
         saveFile,
         saveFileAs,
         fileInputProps,
