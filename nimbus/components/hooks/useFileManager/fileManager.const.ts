@@ -1,32 +1,19 @@
-import type { Language } from "./fileManager.type";
+import { Language, LANGUAGE_META } from "./fileManager.language";
 
-export const PLAIN_TEXT_EXTS = [
+// File extension
+export const FILE_EXTENSIONS = [
   ".py",
-  ".ts",
-  ".js",
-  ".json",
   ".txt",
-  ".html",
-  ".css",
-  ".md",
-];
+] as const;
 
 export const PICKER_TYPES = [
   {
     description: "Code files",
-    accept: { "text/plain": PLAIN_TEXT_EXTS },
+    accept: { "text/plain": FILE_EXTENSIONS },
   },
 ] as const;
 
 // Default file extensions
-export function defaultExt(lang: Language | string): string {
-  switch (lang) {
-    case "typescript": return ".ts";
-    case "javascript": return ".js";
-    case "json":       return ".json";
-    case "html":       return ".html";
-    case "css":        return ".css";
-    case "python":
-    default:           return ".py";
-  }
+export function defaultExt(lang: Language): string {
+  return LANGUAGE_META[lang].defaultExt;
 }

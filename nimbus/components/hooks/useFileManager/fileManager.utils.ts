@@ -1,14 +1,13 @@
-import type { Language } from "./fileManager.type";
+import type { Language } from "./fileManager.language";
 
 
+// Check the language based on the extension
 export function inferLanguageFromName(name: string): Language {
-    if (name.endsWith(".js")) return "javascript";
-    if (name.endsWith(".ts")) return "typescript";
-    if (name.endsWith(".json")) return "json";
-    if (name.endsWith(".html")) return "html";
-    if (name.endsWith(".css")) return "css";
-    return "python";
-};
+  const lower = name.toLowerCase();
+
+  if (lower.endsWith(".py")) return "python";
+  else return "unknown";
+}
 
 
 export function downloadBlob(text: string, name: string){
