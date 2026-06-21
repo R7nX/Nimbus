@@ -208,52 +208,6 @@ export default function App() {
   ]);
   const [activeFileId, setActiveFileId] = useState<string>("temp.py");
 
-  // Hardcoded file tabs for demo:
-  // const [openFiles, setOpenFiles] = useState<OpenFileTab[]>([
-  //   {
-  //     id: "app/page.tsx",
-  //     name: "page.tsx",
-  //     contents: `export default function HomePage() {
-  //   return <main>Welcome to Nimbus.</main>;
-  // }
-  // `,
-  //     isDirty: false,
-  //   },
-  //   {
-  //     id: "app/layout.tsx",
-  //     name: "layout.tsx",
-  //     contents: `export default function RootLayout({
-  //   children,
-  // }: {
-  //   children: React.ReactNode;
-  // }) {
-  //   return <html lang="en"><body>{children}</body></html>;
-  // }
-  // `,
-  //     isDirty: false,
-  //   },
-  //   {
-  //     id: "components/FileTree.tsx",
-  //     name: "FileTree.tsx",
-  //     contents: `export function FileTree() {
-  //   return <nav aria-label="Project files" />;
-  // }
-  // `,
-  //     isDirty: true,
-  //   },
-  //   {
-  //     id: "package.json",
-  //     name: "package.json",
-  //     contents: `{
-  //   "name": "nimbus",
-  //   "private": true
-  // }
-  // `,
-  //     isDirty: false,
-  //   },
-  // ]);
-  // const [activeFileId, setActiveFileId] = useState<string>("app/page.tsx");
-
   // Handle click on tab in TabBar: switch to that file and open in file manager
   const handleSelectTab = (id: string) => {
     const file = openFiles.find((file) => file.id === id);
