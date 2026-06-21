@@ -9,7 +9,6 @@ Thumbs.db
 *.swo
 
 # Project-specific ignores
-Test/
 AGENT.md
 opencode.json
 LINEAR_SETUP.md
