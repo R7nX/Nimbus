@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FileToolbar } from "./FileToolbar";
 
+/**
+ * FileToolbar is callback-driven, so the tests focus on its public contract:
+ * every visible action must render and dispatch only its matching handler.
+ */
 describe("FileToolbar", () => {
   it("renders all file action buttons", () => {
     render(

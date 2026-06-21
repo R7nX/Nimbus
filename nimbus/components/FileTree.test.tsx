@@ -3,6 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FileTree, type TreeNode } from "./FileTree";
 
+/**
+ * FileTree is the sidebar boundary for project navigation.
+ * These tests protect its public behavior: nested rendering, folder toggling,
+ * active-file styling, and file selection callbacks.
+ */
 const nodes: TreeNode[] = [
   {
     name: "app",
