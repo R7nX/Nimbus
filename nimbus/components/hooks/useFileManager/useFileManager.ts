@@ -29,7 +29,10 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     const [isDirty, setIsDirty] = useState<boolean>(false); // is changed since last open/save
     const [fileName, setFileName] = useState<string>(initialName); // current file name (for save as and fallback download)
     const [language, setLanguage] = useState<Language>(initialLanguage); // inferred from file extension, used for syntax highlighting and default save as name
-    const [isVirtualFile, setIsVirtualFile] = useState<boolean>(true); // true for placeholders / buffers without a real file handle
+    // Distinguishes placeholder/in-memory buffers (true) from files backed by a
+    // real File System Access API handle (false). Determines the Save behavior
+    // in the UI: virtual files clear dirty in memory; real files write to disk.
+    const [isVirtualFile, setIsVirtualFile] = useState<boolean>(true);
 
     /** Handle to the file picked via FS Access API; null = fallback or unsaved buffer */
     const fileHandleRef = useRef<FileSystemFileHandle | null>(null);
@@ -119,6 +122,8 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     );
 
     const openVirtualFile = useCallback((file: VirtualFile, isDirty = false) => {
+        // isDirty is optional so callers can restore a file's previous dirty
+        // state when switching back to an already-edited tab.
         fileHandleRef.current = null;
         setFileName(file.name);
         setLanguage(inferLanguageFromName(file.name));

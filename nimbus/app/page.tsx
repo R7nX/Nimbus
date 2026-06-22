@@ -6,6 +6,9 @@ import { TabBar } from "@/components/TabBar";
 import { useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
 
+// Single source of truth for all placeholder files loaded in the editor.
+// Keyed by file path (e.g. "app/page.tsx") so switching tabs is O(1) and each
+// file keeps its own contents string, preventing edits from bleeding across files.
 type FileMap = Record<
   string,
   {
@@ -15,12 +18,16 @@ type FileMap = Record<
   }
 >;
 
+// Lightweight tab metadata. Tabs do not store file contents or dirty state;
+// those live in FileMap. The dirty dot is derived from FileMap at render time.
 type OpenTab = {
   id: string;
   name: string;
   isPreview: boolean;
 };
 
+// Walks the demo file tree and flattens every file into a FileMap entry.
+// Folders are recursed into; only files are added, keyed by their full path.
 function treeToMap(
   nodes: TreeNode[],
   parentPath = "",
@@ -158,6 +165,9 @@ export default function App() {
 
   const [theme] = useState<string>("vs-dark");
 
+  // Holds the in-memory contents and dirty state for every placeholder file.
+  // Initialized once from the demo tree plus the default temp.py tab that is
+  // open on first render.
   const [files, setFiles] = useState<FileMap>(() => ({
     ...treeToMap(sampleFileTree),
     "temp.py": {
@@ -171,8 +181,9 @@ export default function App() {
 
   // File tree section:
   // --------------------------------------------------------------------------------
-  // Handle Single Click on file in FileTree: open in "preview" mode (reusing same tab) 
-  // and mark as dirty on edit.
+  // Single-click a file in the tree: open it as a preview tab (replacing any
+  // existing preview) or activate it if already open. Contents always come from
+  // the FileMap, never the original tree constant, so in-memory edits survive.
   const handleSelectFile = (node: TreeNode, path: string) => {
     const nextTab: OpenTab = {
       id: path,
@@ -203,8 +214,9 @@ export default function App() {
     LoadFileHelper(path);
   };
 
-  // Handle Double Click on file in FileTree: open in "normal" mode (new tab if preview, 
-  // or reuse if already open) and mark as dirty on edit.
+  // Double-click a file in the tree: open it as a pinned tab. If it is already
+  // open, convert it from preview to pinned. Like handleSelectFile, contents are
+  // read from the FileMap so in-memory edits are preserved.
   const handleOpenFile = (node: TreeNode, path: string) => {
     const nextTab: OpenTab = {
       id: path,
@@ -227,8 +239,9 @@ export default function App() {
     LoadFileHelper(path);
   }
 
-  // Help set which file is active in the editor and open it in the file manager
-  // (which tracks dirty state, etc.)
+  // Activates a file in the editor. Reads the latest contents and dirty state
+  // from the FileMap and loads them into useFileManager so Monaco and the Save
+  // button stay in sync with the active tab.
   function LoadFileHelper(path: string) {
     const file = files[path];
     if (!file) return;
@@ -256,15 +269,17 @@ export default function App() {
   ]);
   const [activeFileId, setActiveFileId] = useState<string>("temp.py");
 
-  // Handle click on tab in TabBar: switch to that file and open in file manager
+  // Click a tab: activate that file by loading its stored contents and dirty
+  // state from the FileMap.
   const handleSelectTab = (id: string) => {
     LoadFileHelper(id);
   };
 
   // Save section:
   // --------------------------------------------------------------------------------
-  // For placeholder files the "save" is in-memory: clear the dirty marker.
-  // For real files from disk, delegate to the File System Access API.
+  // Placeholder files are saved in-memory only: clear the dirty marker in both
+  // the FileMap and the hook. Real files opened from disk still use the File
+  // System Access API (or download fallback) via saveFile().
   const handleSave = async () => {
     if (isVirtualFile) {
       setFiles((prev) => ({
@@ -328,6 +343,7 @@ export default function App() {
         </header>
   
         {/* Tab bar for open files */}
+        {/* Derive the dirty dot from the FileMap so it survives tab switches. */}
         <TabBar
           files={openFiles.map((tab) => ({
             ...tab,
@@ -344,6 +360,8 @@ export default function App() {
             theme={theme}
             value={code}
             onChange={(v) => {
+              // Update both the live Monaco buffer and the persisted FileMap
+              // entry for the active file so edits survive tab switches.
               const nextCode = v ?? "";
               setCode(nextCode);
               setFiles((prev) => ({

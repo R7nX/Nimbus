@@ -29,7 +29,7 @@ export type FileManagerAPI = {
     code: string; // editor buffer(code)
     setCode: (s: string) => void; // update buffer + marks dirty
     isDirty: boolean; // unsaved changes
-    setIsDirty: (dirty: boolean) => void; // manually set dirty flag
+    setIsDirty: (dirty: boolean) => void; // allows the UI to clear dirty after an in-memory save
     fileName: string; // current file name
 
     // python or unknown
