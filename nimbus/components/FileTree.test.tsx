@@ -49,6 +49,8 @@ describe("FileTree", () => {
     expect(appFolder).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("button", { name: /\[folder\] login/ })).toBeInTheDocument();
 
+    // Verify both branches of the folder toggle: collapsed children are removed
+    // from the tree, and expanding restores the same nested content.
     await user.click(appFolder);
 
     expect(appFolder).toHaveAttribute("aria-expanded", "false");
