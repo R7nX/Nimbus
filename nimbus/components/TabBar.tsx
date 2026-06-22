@@ -1,7 +1,6 @@
 export type OpenFileTab = {
   id: string;
   name: string;
-  contents: string;
   isDirty: boolean;
   isPreview: boolean;
 };

@@ -2,9 +2,45 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import { FileTree, type TreeNode } from "@/components/FileTree";
-import { TabBar, type OpenFileTab } from "@/components/TabBar";
+import { TabBar } from "@/components/TabBar";
 import { useFileManager } from "@/components/hooks/useFileManager"
 import Link from "next/link";
+
+type FileMap = Record<
+  string,
+  {
+    name: string;
+    contents: string;
+    isDirty: boolean;
+  }
+>;
+
+type OpenTab = {
+  id: string;
+  name: string;
+  isPreview: boolean;
+};
+
+function treeToMap(
+  nodes: TreeNode[],
+  parentPath = "",
+  map: FileMap = {}
+): FileMap {  
+  for (const node of nodes) {
+    const currentPath = parentPath ? `${parentPath}/${node.name}` : node.name;
+    if (node.type === "file") {
+      map[currentPath] = {
+        name: node.name,
+        contents: node.content ?? "",
+        isDirty: false,
+      };
+    } else if (node.type === "folder" && node.children) {
+      treeToMap(node.children, currentPath, map);
+    }
+  }
+
+  return map;
+}
 
 // File structure for the file explorer. In a real app, this would come from the backend or filesystem.
 const sampleFileTree: TreeNode[] = [
@@ -110,7 +146,6 @@ export default function App() {
     code,
     setCode,          // call this in Editor onChange; it marks buffer dirty
     isDirty,
-    fileName,
     language,         // inferred from file extension on open/save-as
     openFile,
     openVirtualFile,
@@ -120,6 +155,16 @@ export default function App() {
   } = useFileManager();
 
   const [theme] = useState<string>("vs-dark");
+
+  const [files, setFiles] = useState<FileMap>(() => ({
+    ...treeToMap(sampleFileTree),
+    "temp.py": {
+      name: "temp.py",
+      contents: "def helloWorld():\n  return 'Hello World'\n",
+      isDirty: false,
+    },
+  }));
+
   const [activeFilePath, setActiveFilePath] = useState<string>();
 
   // File tree section:
@@ -127,82 +172,80 @@ export default function App() {
   // Handle Single Click on file in FileTree: open in "preview" mode (reusing same tab) 
   // and mark as dirty on edit.
   const handleSelectFile = (node: TreeNode, path: string) => {
-    const nextFile: OpenFileTab = {
+    const nextTab: OpenTab = {
       id: path,
       name: node.name,
-      contents: node.content ?? "",
-      isDirty: false,
       isPreview: true,
-    }
+    };
 
-    setOpenFiles((files) => {
-      const alreadyOpen = files.some((file) => file.id === path);
+    // If already open, keep as is (e.g., if already open as preview, keep as preview; if open as normal, keep as normal).
+    setOpenFiles((tabs) => {
+      const alreadyOpen = tabs.some((tab) => tab.id === path);
 
       if (alreadyOpen) {
-        return files;
+        return tabs;
       }
 
-      const activeFile = files.find((file) => file.id === activeFileId);
+      const activeTab = tabs.find((tab) => tab.id === activeFileId);
 
-      if (activeFile?.isPreview) {
-        return files.map((file) =>
-          file.id === activeFileId ? nextFile : file
+      // If not already open, open as preview (which may replace an existing preview)
+      if (activeTab?.isPreview) {
+        return tabs.map((tab) =>
+          tab.id === activeFileId ? nextTab : tab
         );
       }
 
-      return [...files, nextFile];
+      return [...tabs, nextTab];
     });
-    
-    LoadFileHelper(path, nextFile);
-    
+
+    LoadFileHelper(path);
   };
 
   // Handle Double Click on file in FileTree: open in "normal" mode (new tab if preview, 
   // or reuse if already open) and mark as dirty on edit.
   const handleOpenFile = (node: TreeNode, path: string) => {
-    const nextFile: OpenFileTab = {
+    const nextTab: OpenTab = {
       id: path,
       name: node.name,
-      contents: node.content ?? "",
-      isDirty: false,
       isPreview: false,
-    }
+    };
 
-    setOpenFiles((files) => {
-      const alreadyOpen = files.some((file) => file.id === path);
+    setOpenFiles((tabs) => {
+      const alreadyOpen = tabs.some((tab) => tab.id === path);
 
       if (alreadyOpen) {
-        return files.map((file) =>
-          file.id === path ? { ...file, isPreview: false } : file
+        return tabs.map((tab) =>
+          tab.id === path ? { ...tab, isPreview: false } : tab
         );
       }
 
-      return [...files, nextFile];
+      return [...tabs, nextTab];
     });
 
-    LoadFileHelper(path, nextFile);
+    LoadFileHelper(path);
   }
 
-  // Help set which file is active in the editor and open it in the file manager 
+  // Help set which file is active in the editor and open it in the file manager
   // (which tracks dirty state, etc.)
-  function LoadFileHelper(path: string, nextFile: OpenFileTab) {
+  function LoadFileHelper(path: string) {
+    const file = files[path];
+    if (!file) return;
+
     setActiveFileId(path);
     setActiveFilePath(path);
 
     openVirtualFile({
-      name: nextFile.name,
-      contents: nextFile.contents,
+      name: file.name,
+      contents: file.contents,
     });
   }
 
   // Tab bar section:
   // --------------------------------------------------------------------------------
-  const [openFiles, setOpenFiles] = useState<OpenFileTab[]>([
-     {
+  const [openFiles, setOpenFiles] = useState<OpenTab[]>([
+    {
       id: "temp.py",
       name: "temp.py",
-      contents: code,
-      isDirty: false,
       isPreview: false,
     },
   ]);
@@ -210,15 +253,7 @@ export default function App() {
 
   // Handle click on tab in TabBar: switch to that file and open in file manager
   const handleSelectTab = (id: string) => {
-    const file = openFiles.find((file) => file.id === id);
-    if (!file) return;
-
-    setActiveFileId(file.id);
-    setActiveFilePath(file.id);
-    openVirtualFile({
-      name: file.name,
-      contents: file.contents,
-    });
+    LoadFileHelper(id);
   };
 
   // Basic layout: sidebar for file explorer + main editor area with header
@@ -269,7 +304,10 @@ export default function App() {
   
         {/* Tab bar for open files */}
         <TabBar
-          files={openFiles}
+          files={openFiles.map((tab) => ({
+            ...tab,
+            isDirty: files[tab.id]?.isDirty ?? false,
+          }))}
           activeFileId={activeFileId ?? ""}
           onSelectFile={handleSelectTab}
         />
@@ -283,13 +321,14 @@ export default function App() {
             onChange={(v) => {
               const nextCode = v ?? "";
               setCode(nextCode);
-              setOpenFiles((files) =>
-                files.map((file) =>
-                  file.id === activeFileId
-                    ? { ...file, contents: nextCode, isDirty: true }
-                    : file
-                )
-              );
+              setFiles((prev) => ({
+                ...prev,
+                [activeFileId]: {
+                  ...prev[activeFileId],
+                  contents: nextCode,
+                  isDirty: true,
+                },
+              }));
             }}
             options={{ fontSize: 14, minimap: { enabled: false } }}
           />
