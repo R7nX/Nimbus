@@ -146,7 +146,9 @@ export default function App() {
     code,
     setCode,          // call this in Editor onChange; it marks buffer dirty
     isDirty,
+    setIsDirty,
     language,         // inferred from file extension on open/save-as
+    isVirtualFile,
     openFile,
     openVirtualFile,
     saveFile,
@@ -259,6 +261,26 @@ export default function App() {
     LoadFileHelper(id);
   };
 
+  // Save section:
+  // --------------------------------------------------------------------------------
+  // For placeholder files the "save" is in-memory: clear the dirty marker.
+  // For real files from disk, delegate to the File System Access API.
+  const handleSave = async () => {
+    if (isVirtualFile) {
+      setFiles((prev) => ({
+        ...prev,
+        [activeFileId]: {
+          ...prev[activeFileId],
+          isDirty: false,
+        },
+      }));
+      // Keep the hook's dirty flag in sync so the Save button disables itself.
+      setIsDirty(false);
+    } else {
+      await saveFile();
+    }
+  };
+
   // Basic layout: sidebar for file explorer + main editor area with header
   // No 'New' button because hook is load/save-only per your request
   return (
@@ -287,7 +309,7 @@ export default function App() {
             </button>
             <button
               className="px-3 py-1 border rounded"
-              onClick={saveFile}
+              onClick={handleSave}
               disabled={!isDirty} // Save enabled only when there are changes
               title={isDirty ? "Save (changes present)" : "Nothing to save"}
             >

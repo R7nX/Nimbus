@@ -29,10 +29,14 @@ export type FileManagerAPI = {
     code: string; // editor buffer(code)
     setCode: (s: string) => void; // update buffer + marks dirty
     isDirty: boolean; // unsaved changes
+    setIsDirty: (dirty: boolean) => void; // manually set dirty flag
     fileName: string; // current file name
 
     // python or unknown
     language: NonNullable<FileManagerOptions["initialLanguage"]>; 
+
+    // true for placeholder / in-memory buffers; false for files backed by a real file handle
+    isVirtualFile: boolean;
 
     //actions
     openFile: () => Promise<void>;

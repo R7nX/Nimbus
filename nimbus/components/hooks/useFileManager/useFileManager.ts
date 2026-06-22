@@ -29,6 +29,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
     const [isDirty, setIsDirty] = useState<boolean>(false); // is changed since last open/save
     const [fileName, setFileName] = useState<string>(initialName); // current file name (for save as and fallback download)
     const [language, setLanguage] = useState<Language>(initialLanguage); // inferred from file extension, used for syntax highlighting and default save as name
+    const [isVirtualFile, setIsVirtualFile] = useState<boolean>(true); // true for placeholders / buffers without a real file handle
 
     /** Handle to the file picked via FS Access API; null = fallback or unsaved buffer */
     const fileHandleRef = useRef<FileSystemFileHandle | null>(null);
@@ -85,6 +86,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                     setCodeState(text);
                     setIsDirty(false);
                     setLanguage(inferLanguageFromName(file.name));
+                    setIsVirtualFile(false);
                     return;
                 }
 
@@ -107,6 +109,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                 setFileName(f.name);
                 setIsDirty(false);
                 setLanguage(inferLanguageFromName(f.name));
+                setIsVirtualFile(false);
             };
             reader.readAsText(f);
 
@@ -121,6 +124,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         setLanguage(inferLanguageFromName(file.name));
         setCodeState(file.contents);
         setIsDirty(isDirty);
+        setIsVirtualFile(true);
     }, []);
 
     const saveFileAs = useCallback(async () => {
@@ -136,6 +140,7 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
                 const f = await handle.getFile();
                 setFileName(f.name);
                 setIsDirty(false);
+                setIsVirtualFile(false);
             } else {
                 downloadBlob(code, fileName || `untitled${defaultExt(language)}`);
                 setIsDirty(false);
@@ -189,8 +194,10 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         code,
         setCode,
         isDirty,
+        setIsDirty,
         fileName,
         language,
+        isVirtualFile,
         openFile,
         openVirtualFile,
         saveFile,
