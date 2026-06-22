@@ -3,6 +3,20 @@ import { Language, LANGUAGE_META } from "./fileManager.language";
 // File extension
 export const FILE_EXTENSIONS = [
   ".py",
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".json",
+  ".html",
+  ".htm",
+  ".css",
+  ".md",
+  ".markdown",
+  ".yaml",
+  ".yml",
   ".txt",
 ] as const;
 
