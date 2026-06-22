@@ -36,7 +36,7 @@ export type FileManagerAPI = {
 
     //actions
     openFile: () => Promise<void>;
-    openVirtualFile: (file: VirtualFile) => void;
+    openVirtualFile: (file: VirtualFile, isDirty?: boolean) => void;
     saveFile: () => Promise<void>;
     saveFileAs: () => Promise<void>;
 

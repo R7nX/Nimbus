@@ -234,10 +234,13 @@ export default function App() {
     setActiveFileId(path);
     setActiveFilePath(path);
 
-    openVirtualFile({
-      name: file.name,
-      contents: file.contents,
-    });
+    openVirtualFile(
+      {
+        name: file.name,
+        contents: file.contents,
+      },
+      file.isDirty
+    );
   }
 
   // Tab bar section:

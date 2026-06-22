@@ -115,12 +115,12 @@ export function useFileManager(opts: FileManagerOptions = {}): FileManagerAPI {
         }, []
     );
 
-    const openVirtualFile = useCallback((file: VirtualFile) => {
+    const openVirtualFile = useCallback((file: VirtualFile, isDirty = false) => {
         fileHandleRef.current = null;
         setFileName(file.name);
         setLanguage(inferLanguageFromName(file.name));
         setCodeState(file.contents);
-        setIsDirty(false);
+        setIsDirty(isDirty);
     }, []);
 
     const saveFileAs = useCallback(async () => {
