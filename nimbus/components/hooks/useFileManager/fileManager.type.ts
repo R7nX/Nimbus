@@ -8,12 +8,14 @@
 // - Actions: open / save / save-as
 // - Fallback DOM props: hidden <input type="file" /> for browsers without FS Access API
 
+import type { Language } from "./fileManager.language";
+
 export type FileManagerOptions = {
     // Initial editor code (default: "") 
     initialCode?: string;
 
     // Initial language for Monaco ("unknown" = plain text)
-    initialLanguage?: "python" | "unknown";
+    initialLanguage?: Language;
 
     //Initial filename shown in the UI (default: "untitled")
     initialName?: string;
@@ -32,7 +34,7 @@ export type FileManagerAPI = {
     setIsDirty: (dirty: boolean) => void; // allows the UI to clear dirty after an in-memory save
     fileName: string; // current file name
 
-    // python or unknown
+    // a supported Language (also the Monaco language id); "unknown" = plain text
     language: NonNullable<FileManagerOptions["initialLanguage"]>; 
 
     // true for placeholder / in-memory buffers; false for files backed by a real file handle
