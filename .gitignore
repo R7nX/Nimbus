@@ -14,3 +14,18 @@ opencode.json
 LINEAR_SETUP.md
 NIMBUS_PLANNING.md
 NIMBUS_TRACKS.md
+
+# Dependencies
+node_modules/
+
+# Build output
+nimbus/.next/
+nimbus/server/dist/
+
+# Environment files
+.env*
+nimbus/.env*
+nimbus/server/.env*
+!.env.example
+!nimbus/.env.example
+!nimbus/server/.env.example

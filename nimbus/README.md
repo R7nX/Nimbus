@@ -1,22 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is the [Next.js](https://nextjs.org) frontend workspace for Nimbus.
+
+The top-level repository has a root `package.json` that can install, run, and build both the frontend and backend together. This package still keeps its own `package.json` for frontend-specific scripts and dependencies.
 
 ## Getting Started
 
-First, run the development server:
+From the repository root, install all workspace dependencies:
+
+```bash
+cd C:\Nimbus
+npm install
+```
+
+Then run the frontend and backend together:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+To run only the frontend from the repository root:
+
+```bash
+npm run dev:frontend
+```
+
+You can also run frontend commands directly from this folder:
+
+```bash
+cd C:\Nimbus\nimbus
+npm run dev
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Available Commands
+
+From the repository root:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the frontend and backend together |
+| `npm run dev:frontend` | Start only this Next.js frontend |
+| `npm run build:frontend` | Build only this frontend |
+
+From `C:\Nimbus\nimbus`:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Build the frontend for production |
+| `npm run start` | Start the production frontend after a build |
+| `npm run lint` | Run ESLint |
+
+## Backend API
+
+The backend API lives in `C:\Nimbus\nimbus\server`. When both apps are running, the API health check is available at [http://127.0.0.1:4000/health](http://127.0.0.1:4000/health).
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

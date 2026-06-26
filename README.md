@@ -34,22 +34,58 @@ Built with a cloud-native architecture designed for performance and growth.
    cd Nimbus
    ```
 
-2. Navigate to the app directory and install dependencies:
+2. Install all workspace dependencies from the repository root:
    ```bash
-   cd nimbus
    npm install
+   ```
+
+   This installs dependencies for the frontend app in `nimbus/`, the backend API in `nimbus/server/`, and the root workspace tools.
+
+3. Create a local backend environment file:
+   ```bash
+   cd nimbus/server
+   cp .env.example .env
+   ```
+
+   On PowerShell:
+   ```powershell
+   Copy-Item .env.example .env
    ```
 
 ### Running locally
 
-Start the development server:
+Start the frontend and backend together from the repository root:
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Other commands
+The API runs at [http://127.0.0.1:4000](http://127.0.0.1:4000) by default.
+
+You can also run either side by itself from the repository root:
+```bash
+npm run dev:frontend
+npm run dev:server
+```
+
+### Root workspace commands
+
+Run these commands from the repository root.
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies for all npm workspaces and create/update the root `package-lock.json` |
+| `npm run dev` | Start the frontend and backend development servers together |
+| `npm run dev:frontend` | Start only the Next.js frontend |
+| `npm run dev:server` | Start only the Fastify backend API |
+| `npm run build` | Build the frontend and backend |
+| `npm run build:frontend` | Build only the frontend |
+| `npm run build:server` | Build only the backend |
+
+### Frontend commands
+
+Run these commands from `nimbus/`, or use the root workspace commands above.
 
 | Command | Description |
 |---------|-------------|
@@ -58,7 +94,19 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `npm run start` | Start production server (requires build first) |
 | `npm run lint` | Run ESLint |
 
+### Backend commands
+
+Run these commands from `nimbus/server/`, or use the root workspace commands above.
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Fastify API server with watch mode |
+| `npm run build` | Compile TypeScript into `dist/` |
+| `npm run start` | Start compiled API server |
+
 ## 🗺️ Routes
+
+### Frontend routes
 
 | Path | Description |
 |------|-------------|
@@ -66,6 +114,66 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `/homepage` | Main IDE with full file management |
 | `/login` | User login |
 | `/signup` | User registration |
+
+### Backend API routes
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Health check for the Fastify API server |
+
+Check backend health:
+```bash
+curl http://127.0.0.1:4000/health
+```
+
+On PowerShell:
+```powershell
+Invoke-RestMethod http://127.0.0.1:4000/health
+```
+
+Expected response:
+```json
+{
+  "status": "ok",
+  "service": "nimbus-api",
+  "uptime": 12.34
+}
+```
+
+## Backend API
+
+The backend API lives in `nimbus/server` and provides the foundation for future terminal sessions, WebSockets, files, auth, and user sessions.
+
+## Workspace layout
+
+The repository uses npm workspaces from the top-level `package.json`.
+
+| Path | Description |
+|------|-------------|
+| `package.json` | Root workspace scripts for installing, running, and building both apps |
+| `package-lock.json` | Single lockfile for all npm workspaces |
+| `nimbus/package.json` | Frontend package manifest |
+| `nimbus/server/package.json` | Backend API package manifest |
+
+### Environment variables
+
+The backend reads config from `nimbus/server/.env`.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NODE_ENV` | `development` | Runtime environment |
+| `HOST` | `127.0.0.1` | Host address for the API server |
+| `PORT` | `4000` | Port for the API server |
+| `CORS_ORIGIN` | `http://localhost:3000` | Frontend origin allowed to call the API |
+
+### Backend structure
+
+| Path | Description |
+|------|-------------|
+| `src/config` | Environment config loading |
+| `src/routes` | HTTP API routes |
+| `src/services` | Backend logic used by routes |
+| `src/ws` | Future WebSocket handlers for terminal streaming |
 
 ## 🌐 Browser Support
 
@@ -79,6 +187,7 @@ The File System Access API (used for native open/save dialogs) is only available
 ## 🧰 Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
+- **Backend API**: Fastify 5
 - **Editor**: Monaco Editor 0.52
 - **UI**: React 19, Tailwind CSS, Framer Motion
 - **Language**: TypeScript 5
