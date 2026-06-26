@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { getHealthStatus } from "../services/healthservice.js";
+import { getHealthStatus } from "../services/healthService.js";
 
 // Define health check routes for the Fastify server
 export async function healthRoutes(app: FastifyInstance) {

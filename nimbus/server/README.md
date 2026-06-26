@@ -4,15 +4,17 @@ The server provides the backend foundation for future terminal sessions, WebSock
 
 ## Getting Started
 
-First, install dependencies:
+From the repository root, install all workspace dependencies:
 
 ```bash
+cd C:\Nimbus
 npm install
 ```
 
 Create a local environment file from the example:
 
 ```bash
+cd C:\Nimbus\nimbus\server
 cp .env.example .env
 ```
 
@@ -22,13 +24,27 @@ On PowerShell:
 Copy-Item .env.example .env
 ```
 
-Then run the development server:
+Then run the frontend and backend together from the repository root:
 
 ```bash
+cd C:\Nimbus
 npm run dev
 ```
 
 The API starts at [http://127.0.0.1:4000](http://127.0.0.1:4000) by default.
+
+To run only the backend API from the repository root:
+
+```bash
+npm run dev:server
+```
+
+You can also run backend commands directly from this folder:
+
+```bash
+cd C:\Nimbus\nimbus\server
+npm run dev
+```
 
 ## Health Check
 
@@ -78,6 +94,16 @@ src/
 The `ws` folder is reserved for terminal streaming work. Terminal sessions are not implemented yet.
 
 ## Available Commands
+
+From the repository root:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the frontend and backend together |
+| `npm run dev:server` | Start only this Fastify API server |
+| `npm run build:server` | Build only this API server |
+
+From `C:\Nimbus\nimbus\server`:
 
 | Command | Description |
 | --- | --- |

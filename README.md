@@ -34,20 +34,16 @@ Built with a cloud-native architecture designed for performance and growth.
    cd Nimbus
    ```
 
-2. Navigate to the app directory and install dependencies:
+2. Install all workspace dependencies from the repository root:
    ```bash
-   cd nimbus
    npm install
    ```
 
-3. Navigate to the backend API directory and install dependencies:
-   ```bash
-   cd server
-   npm install
-   ```
+   This installs dependencies for the frontend app in `nimbus/`, the backend API in `nimbus/server/`, and the root workspace tools.
 
-4. Create a local backend environment file:
+3. Create a local backend environment file:
    ```bash
+   cd nimbus/server
    cp .env.example .env
    ```
 
@@ -58,21 +54,38 @@ Built with a cloud-native architecture designed for performance and growth.
 
 ### Running locally
 
-Start the frontend development server from `nimbus/`:
+Start the frontend and backend together from the repository root:
 ```bash
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Start the backend API development server from `nimbus/server/`:
-```bash
-npm run dev
-```
-
 The API runs at [http://127.0.0.1:4000](http://127.0.0.1:4000) by default.
 
+You can also run either side by itself from the repository root:
+```bash
+npm run dev:frontend
+npm run dev:server
+```
+
+### Root workspace commands
+
+Run these commands from the repository root.
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Install dependencies for all npm workspaces and create/update the root `package-lock.json` |
+| `npm run dev` | Start the frontend and backend development servers together |
+| `npm run dev:frontend` | Start only the Next.js frontend |
+| `npm run dev:server` | Start only the Fastify backend API |
+| `npm run build` | Build the frontend and backend |
+| `npm run build:frontend` | Build only the frontend |
+| `npm run build:server` | Build only the backend |
+
 ### Frontend commands
+
+Run these commands from `nimbus/`, or use the root workspace commands above.
 
 | Command | Description |
 |---------|-------------|
@@ -83,7 +96,7 @@ The API runs at [http://127.0.0.1:4000](http://127.0.0.1:4000) by default.
 
 ### Backend commands
 
-Run these commands from `nimbus/server/`.
+Run these commands from `nimbus/server/`, or use the root workspace commands above.
 
 | Command | Description |
 |---------|-------------|
@@ -130,6 +143,17 @@ Expected response:
 ## Backend API
 
 The backend API lives in `nimbus/server` and provides the foundation for future terminal sessions, WebSockets, files, auth, and user sessions.
+
+## Workspace layout
+
+The repository uses npm workspaces from the top-level `package.json`.
+
+| Path | Description |
+|------|-------------|
+| `package.json` | Root workspace scripts for installing, running, and building both apps |
+| `package-lock.json` | Single lockfile for all npm workspaces |
+| `nimbus/package.json` | Frontend package manifest |
+| `nimbus/server/package.json` | Backend API package manifest |
 
 ### Environment variables
 
