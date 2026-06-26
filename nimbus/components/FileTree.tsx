@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { File, FileCode, FileJson, Folder } from "lucide-react";
 
 export type TreeNode = {
   name: string;
@@ -25,6 +26,29 @@ type TreeNodeRowProps = {
   onToggleFolder: (path: string) => void;
 };
 
+function getFileIcon(name: string) {
+  const extension = name.includes(".") ? name.split(".").pop()?.toLowerCase() : undefined;
+
+  switch (extension) {
+    case "json":
+      return FileJson;
+    case "ts":
+    case "tsx":
+    case "js":
+    case "jsx":
+      return FileCode;
+    default:
+      return File;
+  }
+}
+
+function getNodeIcon(node: TreeNode) {
+  if (node.type === "folder") {
+    return Folder;
+  }
+  return getFileIcon(node.name);
+}
+
 // Individual row in the file tree. It renders both folders and files, then
 // recursively renders children when a folder is expanded.
 function TreeNodeRow({
@@ -40,12 +64,14 @@ function TreeNodeRow({
   const isFolder = node.type === "folder";
   const isActive = path === activePath;
   const isExpanded = expandedFolders.has(path);
-  const label = isFolder ? `[folder] ${node.name}` : `[file] ${node.name}`;
+  const label = node.name;
 
   // Used to separate single click from double click:
   // single click previews a file after a short delay, while double click cancels
   // that preview and opens the file as a normal/persistent tab.
   const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  const Icon = getNodeIcon(node);
   
   return (
     <li>
@@ -85,6 +111,9 @@ function TreeNodeRow({
         }}
         aria-expanded={isFolder ? isExpanded : undefined}
       >
+        <span className="mr-2 flex h-4 w-4 items-center justify-center">
+          <Icon className="h-4 w-4" aria-hidden="true" />
+        </span>
         <span>{label}</span>
         {isFolder ? (
           <span className="ml-auto text-neutral-500" aria-hidden="true">
