@@ -49,8 +49,8 @@ export default function SignupPage() {
       // 3) Persist session & redirect
       localStorage.setItem("username", name);
       router.push("/homepage");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Signup failed");
     } finally {
       setLoading(false);
     }
