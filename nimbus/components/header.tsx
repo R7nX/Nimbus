@@ -1,24 +1,8 @@
 "use client";
 
-
-import React, { useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
-
-type HeaderProps = {
-  isSignedIn: boolean;
-};
-
-const Header: React.FC<HeaderProps> = ({ isSignedIn }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen((prev) => !prev);
-  };
-
-
+const Header: React.FC = () => {
   return (
     <header className="w-full z-10">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">

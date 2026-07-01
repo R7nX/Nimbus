@@ -4,7 +4,6 @@ import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import { FileToolbar } from "@/components/FileToolbar";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function App() {
   const [code, setCode] = useState(
